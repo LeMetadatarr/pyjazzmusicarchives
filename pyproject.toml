@@ -6,12 +6,27 @@ build-backend = "setuptools.build_meta"
 name = "pyjazzmusicarchives"
 dynamic = ["version"]
 description = "Typed Python client for Jazz Music Archives (jazzmusicarchives.com)"
+readme = "README.md"
+license = { text = "Apache-2.0" }
+authors = [{ name = "JarbasAi", email = "jarbasai@mailfence.com" }]
 requires-python = ">=3.9"
 dependencies = ["requests>=2.28", "beautifulsoup4>=4.11"]
+keywords = ["jazzmusicarchives", "jazz", "music", "scraper", "metadata"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: Apache Software License",
+    "Intended Audience :: Developers",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Internet :: WWW/HTTP",
+]
 
 [project.optional-dependencies]
 stealth = ["curl-cffi"]
 test = ["pytest"]
+
+[project.urls]
+Homepage = "https://github.com/TigreGotico/pyjazzmusicarchives"
+Repository = "https://github.com/TigreGotico/pyjazzmusicarchives"
 
 [tool.setuptools.packages.find]
 where = ["."]
