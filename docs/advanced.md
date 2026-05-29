@@ -11,13 +11,43 @@ installed:
 pip install pyjazzmusicarchives[stealth]
 ```
 
-Force plain `requests` with:
+### Transport modes
+
+`PYJAZZMUSICARCHIVES_TRANSPORT` selects how pages are fetched:
+
+| Value | Behaviour |
+|---|---|
+| *(unset)* / `curl_cffi` | Live fetch with Chrome TLS impersonation (default). |
+| `requests` | Live fetch with plain `requests`, no impersonation. |
+| `wayback` | **Do not touch the live site** — fetch the latest snapshot from the Internet Archive (Wayback Machine). |
 
 ```bash
-export PYJAZZMUSICARCHIVES_TRANSPORT=requests
+export PYJAZZMUSICARCHIVES_TRANSPORT=requests   # or: curl_cffi (default), wayback
 ```
 
-If you still receive a Cloudflare **JS challenge**, your IP is flagged. Options:
+### Wayback Machine — surviving the JS challenge
+
+If you receive a Cloudflare **JS challenge**, your IP is flagged and TLS
+impersonation alone won't help. The client can read the site out of the
+**Internet Archive** instead — archive.org is not Cloudflare-gated:
+
+```bash
+# Archive-only: every request goes to the Wayback Machine
+export PYJAZZMUSICARCHIVES_TRANSPORT=wayback
+
+# Or: try live first, fall back to the archive on failure (challenge / non-2xx)
+export PYJAZZMUSICARCHIVES_WAYBACK_FALLBACK=1
+```
+
+It fetches the most recent capture's *raw* bytes (the Wayback `id_` form — no
+toolbar, no link rewriting), so the parsers see the page exactly as
+jazzmusicarchives served it. The trade-off is **staleness**: a snapshot may be
+weeks or months old, and very obscure pages may not be archived at all (those
+raise `RuntimeError` in `wayback` mode, or fall through to the live error under
+fallback). `pyjazzmusicarchives._transport.wayback_html(url)` is exposed if you
+want to drive it directly.
+
+Other escape hatches:
 
 - run from a residential / unblocked network;
 - front the client with a challenge-solving proxy;
