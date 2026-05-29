@@ -20,8 +20,11 @@ pip install pyjazzmusicarchives[dev]       # adds pytest
 > **Cloudflare:** jazzmusicarchives.com is fronted by Cloudflare. The client
 > defaults to `curl_cffi` Chrome TLS impersonation (the `stealth` extra) which
 > clears the bot check from most networks. From flagged IPs you may still hit a
-> JS challenge — run from a residential/unblocked network or a challenge-solving
-> proxy. The parsing layer is independent of how the HTML was fetched.
+> JS challenge. Best fix: point it at a **FlareSolverr** instance for live data —
+> `export PYJAZZMUSICARCHIVES_FLARESOLVERR_URL=http://host:8191`. Or read from the
+> **Internet Archive** with `PYJAZZMUSICARCHIVES_TRANSPORT=wayback` (stale but
+> needs nothing). The parsing layer is independent of how the HTML was
+> fetched — see [docs/advanced.md](docs/advanced.md).
 
 ## 30-second tour
 

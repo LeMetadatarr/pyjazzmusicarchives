@@ -11,13 +11,95 @@ installed:
 pip install pyjazzmusicarchives[stealth]
 ```
 
-Force plain `requests` with:
+### Transport modes
+
+`PYJAZZMUSICARCHIVES_TRANSPORT` selects how pages are fetched:
+
+| Value | Behaviour |
+|---|---|
+| *(unset)* / `curl_cffi` | Live fetch with Chrome TLS impersonation (default). |
+| `requests` | Live fetch with plain `requests`, no impersonation. |
+| `wayback` | **Do not touch the live site** — fetch the latest snapshot from the Internet Archive (Wayback Machine). |
+| `flaresolverr` | Fetch through a FlareSolverr proxy that solves the Cloudflare challenge in a real browser and returns **live** HTML. |
 
 ```bash
-export PYJAZZMUSICARCHIVES_TRANSPORT=requests
+export PYJAZZMUSICARCHIVES_TRANSPORT=requests   # or: curl_cffi (default), wayback, flaresolverr
 ```
 
-If you still receive a Cloudflare **JS challenge**, your IP is flagged. Options:
+### Configure in code (no env vars)
+
+Every knob is also a constructor kwarg on the `JazzMusicArchives` client (and on
+`Transport`); explicit kwargs always win over the environment:
+
+```python
+import pyjazzmusicarchives as jma
+
+# FlareSolverr (live) — setting the URL selects the flaresolverr transport
+client = jma.JazzMusicArchives(flaresolverr_url="http://192.168.1.116:8191")
+miles = client.fetch_artist("miles-davis")
+
+# Force the Internet Archive
+archived = jma.JazzMusicArchives(wayback=True)        # == transport="wayback"
+
+# Try live first, fall back to the archive
+resilient = jma.JazzMusicArchives(flaresolverr_url="http://192.168.1.116:8191",
+                                  wayback_fallback=True)
+
+# Or build a Transport yourself and pass it to the functions
+from pyjazzmusicarchives import Transport
+t = Transport(mode="flaresolverr", flaresolverr_url="http://192.168.1.116:8191",
+              flaresolverr_timeout_ms=90000)
+artists = jma.get_artists_by_letter("M", transport=t)
+```
+
+The module-level functions (`jma.fetch_artist(...)` etc.) keep using the
+environment-driven default transport.
+
+### FlareSolverr — solve the challenge and get *live* data
+
+[FlareSolverr](https://github.com/FlareSolverr/FlareSolverr) runs a headless
+browser that clears the Cloudflare JS challenge. Unlike the Wayback fallback it
+returns **current** pages, so it's the best option if you have an instance
+(it's a one-container service, commonly on port `8191`). Point the client at it:
+
+```bash
+export PYJAZZMUSICARCHIVES_FLARESOLVERR_URL=http://192.168.1.116:8191
+# setting the URL alone selects flaresolverr transport automatically;
+# PYJAZZMUSICARCHIVES_FLARESOLVERR_TIMEOUT (ms, default 60000) tunes the solve budget.
+```
+
+```python
+import pyjazzmusicarchives as jma
+miles = jma.fetch_artist("miles-davis")   # fetched live, challenge solved by FlareSolverr
+```
+
+`pyjazzmusicarchives._transport.flaresolverr_html(url)` is exposed for direct
+use. Combine with `PYJAZZMUSICARCHIVES_WAYBACK_FALLBACK=1` to fall back to the
+archive if FlareSolverr is down.
+
+### Wayback Machine — surviving the JS challenge
+
+If you receive a Cloudflare **JS challenge**, your IP is flagged and TLS
+impersonation alone won't help. The client can read the site out of the
+**Internet Archive** instead — archive.org is not Cloudflare-gated:
+
+```bash
+# Archive-only: every request goes to the Wayback Machine
+export PYJAZZMUSICARCHIVES_TRANSPORT=wayback
+
+# Or: try live first, fall back to the archive on failure (challenge / non-2xx)
+export PYJAZZMUSICARCHIVES_WAYBACK_FALLBACK=1
+```
+
+It fetches the most recent capture's *raw* bytes (the Wayback `id_` form — no
+toolbar, no link rewriting), so the parsers see the page exactly as
+jazzmusicarchives served it. The trade-off is **staleness**: a snapshot may be
+weeks or months old, and very obscure pages may not be archived at all (those
+raise `RuntimeError` in `wayback` mode, or fall through to the live error under
+fallback). `pyjazzmusicarchives._transport.wayback_html(url)` is exposed if you
+want to drive it directly.
+
+Other escape hatches:
 
 - run from a residential / unblocked network;
 - front the client with a challenge-solving proxy;

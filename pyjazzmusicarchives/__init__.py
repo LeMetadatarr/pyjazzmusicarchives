@@ -34,12 +34,14 @@ Quick start::
 from pyjazzmusicarchives.types import Artist, Album, ArtistDetail
 from pyjazzmusicarchives.artists import (
     ArtistNotFound,
+    JazzMusicArchives,
     fetch_artist,
     get_all_artists,
     get_artists_by_letter,
     iter_artists,
     search_artists,
 )
+from pyjazzmusicarchives._transport import Transport
 from pyjazzmusicarchives.version import __version__
 
 __all__ = [
@@ -47,6 +49,8 @@ __all__ = [
     "Album",
     "ArtistDetail",
     "ArtistNotFound",
+    "JazzMusicArchives",
+    "Transport",
     "fetch_artist",
     "get_all_artists",
     "get_artists_by_letter",
