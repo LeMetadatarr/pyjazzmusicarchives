@@ -2,8 +2,9 @@
 
 Typed Python client for Jazz Music Archives (jazzmusicarchives.com): browse the
 A–Z artist index, search by name, fetch full artist pages (styles, biography,
-rated discography), with optional metadatarr provider integration and a dataset
-row builder.
+rated discography), and a dataset row builder. Pure scraper — the metadatarr
+`MetadataProvider` that consumes it lives in the **metadatarr** repo
+(`metadatarr/resolve/providers/jazzmusicarchives.py`), not here.
 
 ## Setup
 
@@ -43,9 +44,6 @@ None configured. Source is fully type-annotated with
 - `pyjazzmusicarchives/artists.py` — fetching + client-side `search_artists`.
 - `pyjazzmusicarchives/_transport.py` — `get_html()`; defaults to `curl_cffi`
   Chrome impersonation, `PYJAZZMUSICARCHIVES_TRANSPORT=requests` forces requests.
-- `pyjazzmusicarchives/_provider.py` — optional metadatarr provider. Matches
-  `PlaybackType.AUDIO` + genre `{"jazz"}`; emits external ids and an
-  `EntityRole.ARTIST` (group) entity; matches on `display_name`.
 - `pyjazzmusicarchives/dataset.py` — flat HF row builders.
 - `docs/`, `examples/`, `tests/fixtures/`.
 

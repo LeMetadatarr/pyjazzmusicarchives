@@ -66,27 +66,24 @@ Start with **[docs/quickstart.md](docs/quickstart.md)**, then:
 
 - [docs/api.md](docs/api.md) — every function and model field
 - [docs/advanced.md](docs/advanced.md) — Cloudflare/transport, pagination, errors
-- [docs/metadatarr.md](docs/metadatarr.md) — canonical ids, entity lookup, the provider
+- [docs/canonical_ids.md](docs/canonical_ids.md) — canonical ids (how metadatarr consumes this)
 - [docs/dataset.md](docs/dataset.md) — building a Hugging Face dataset
 
 Runnable, numbered scripts live in [examples/](examples/).
 
-## metadatarr integration
+## Canonical ids & metadatarr
+
+This package is a **pure scraper**. It exposes jazzmusicarchives' stable ids via
+`site_id` and `to_external_ids_dict()`:
 
 ```python
-import pyjazzmusicarchives._provider          # registers the provider
-from metadatarr.resolve.base import resolve
-from mediavocab.models.signals import Signals
-from mediavocab import PlaybackType
-
-result = resolve(Signals(
-    artist="Miles Davis",
-    playback_type=PlaybackType.AUDIO,
-    content_genres=["jazz"],
-))
-print(result.external_ids.extra)        # {'jazzmusicarchives_artist': 'miles-davis', ...}
+m = jma.search_artists("miles davis")[0]
+m.to_external_ids_dict()
+# {'jazzmusicarchives_artist': 'miles-davis', 'jazzmusicarchives_url': '...'}
 ```
 
-The provider resolves an artist to its stable slug and emits an
-`EntityRole.ARTIST` entity, from which metadatarr derives a deterministic
-canonical entity id. See [docs/metadatarr.md](docs/metadatarr.md).
+The metadatarr resolver **consumes** these — the `MetadataProvider` lives in the
+[metadatarr](../metadatarr) repo (`metadatarr/resolve/providers/jazzmusicarchives.py`),
+not here, so integration code isn't scattered across client repos. Install both
+packages and metadatarr auto-discovers the provider. See
+[docs/canonical_ids.md](docs/canonical_ids.md).
