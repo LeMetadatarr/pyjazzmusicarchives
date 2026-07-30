@@ -1,6 +1,6 @@
-# Quickstart — zero to hero
+# Quickstart -- zero to hero
 
-From `pip install` to an artist's full rated discography.
+This guide takes you from `pip install` to an artist's full rated discography.
 
 ## 1. Install
 
@@ -8,9 +8,7 @@ From `pip install` to an artist's full rated discography.
 pip install pyjazzmusicarchives[stealth]
 ```
 
-The `stealth` extra pulls in `curl_cffi`, used by default to clear
-jazzmusicarchives.com's Cloudflare bot check. See [advanced.md](advanced.md) if
-you still hit a challenge.
+The `stealth` extra pulls in `curl_cffi`, used by default to clear jazzmusicarchives.com's Cloudflare bot check. See [advanced.md](advanced.md) if you still hit a challenge.
 
 ## 2. The mental model
 
@@ -20,13 +18,9 @@ Jazz Music Archives catalogues **artists** and their **albums**:
 Artist ──▶ Album, Album, Album …   (each tagged with a sub-genre + member rating)
 ```
 
-- An **`Artist`** is the lightweight shape from the A–Z index. It is identified
-  by a URL **slug** (`"miles-davis"`), and is listed surname-first
-  (`"DAVIS, MILES"`) — use `display_name` for the natural form.
-- An **`ArtistDetail`** is the full artist page: styles, biography, and the
-  rated discography.
-- An **`Album`** is reached through an `ArtistDetail` and carries a per-album
-  sub-genre, year, member average rating and rating count.
+- An **`Artist`** is the lightweight shape from the A-Z index. It is identified by a URL **slug** (`"miles-davis"`), and is listed surname-first (`"DAVIS, MILES"`). Use `display_name` for the natural form.
+- An **`ArtistDetail`** is the full artist page: styles, biography, and the rated discography.
+- An **`Album`** is reached through an `ArtistDetail` and carries a per-album sub-genre, year, member average rating, and rating count.
 
 ## 3. Browse the index
 
@@ -49,8 +43,7 @@ for a in itertools.islice(jma.iter_artists(), 20):
 
 ## 4. Search
 
-No server search exists, so the library searches the by-letter index (matching
-on both surname-first and natural order):
+No server search exists, so the library searches the by-letter index and matches on both surname-first and natural order:
 
 ```python
 jma.search_artists("miles davis")[0].display_name      # 'MILES DAVIS'
@@ -67,7 +60,7 @@ print(miles.bio[:160])
 print(len(miles.albums), "albums")
 ```
 
-Unknown slugs raise `ArtistNotFound`.
+An unknown slug raises `ArtistNotFound`.
 
 ## 6. The rated discography
 
@@ -83,9 +76,9 @@ best = max(rated, key=lambda x: x.avg_rating)
 print("Top:", best.title, best.avg_rating, f"({best.num_ratings} ratings)")
 ```
 
-Unrated releases report `avg_rating = None` (the album id is still captured).
+An unrated release reports `avg_rating = None`. Its album id is still captured.
 
-## 7. Serialise + canonical ids
+## 7. Serialize and get canonical ids
 
 ```python
 import json
@@ -95,7 +88,10 @@ print(detail.to_external_ids_dict())
 
 ## Next steps
 
-- [api.md](api.md) — the complete reference
-- [metadatarr.md](metadatarr.md) — canonical ids and the resolver provider
-- [dataset.md](dataset.md) — build a Hugging Face dataset
-- [advanced.md](advanced.md) — Cloudflare, transport, errors
+- [api.md](api.md) -- the complete reference
+- [canonical_ids.md](canonical_ids.md) -- canonical ids, and how metadatarr consumes them
+- [dataset.md](dataset.md) -- build a Hugging Face dataset
+- [advanced.md](advanced.md) -- Cloudflare, transport, errors
+
+---
+[Home](../README.md) · [API reference →](api.md)

@@ -29,31 +29,19 @@ Quick start::
     # Serialise + canonical ids
     import json
     print(json.dumps(detail.to_dict(), indent=2)[:300])
-    print(detail.to_external_ids_dict())
-
-metadatarr integration (optional)::
-
-    import pyjazzmusicarchives._provider          # registers the provider
-    from metadatarr.resolve.base import resolve
-    from mediavocab.models.signals import Signals
-    from mediavocab import PlaybackType
-
-    result = resolve(Signals(
-        artist="Miles Davis",
-        playback_type=PlaybackType.AUDIO,
-        content_genres=["jazz"],
-    ))
-    print(result.external_ids.extra)
+    print(detail.to_external_ids_dict())   # consumed by metadatarr for resolution
 """
 from pyjazzmusicarchives.types import Artist, Album, ArtistDetail
 from pyjazzmusicarchives.artists import (
     ArtistNotFound,
+    JazzMusicArchives,
     fetch_artist,
     get_all_artists,
     get_artists_by_letter,
     iter_artists,
     search_artists,
 )
+from pyjazzmusicarchives._transport import Transport
 from pyjazzmusicarchives.version import __version__
 
 __all__ = [
@@ -61,6 +49,8 @@ __all__ = [
     "Album",
     "ArtistDetail",
     "ArtistNotFound",
+    "JazzMusicArchives",
+    "Transport",
     "fetch_artist",
     "get_all_artists",
     "get_artists_by_letter",
