@@ -72,6 +72,13 @@ m.to_external_ids_dict()
 
 The metadatarr resolver consumes these ids. The `MetadataProvider` lives in the [metadatarr](../metadatarr) repo (`metadatarr/resolve/providers/jazzmusicarchives.py`), not here, so integration code stays out of the client repos. Install both packages and metadatarr auto-discovers the provider. See [docs/canonical_ids.md](docs/canonical_ids.md).
 
+## Related projects
+
+- [metadatarr](https://github.com/LeMetadatarr/metadatarr) -- the resolver that consumes this client's canonical ids.
+- [pymusicbrainz](https://github.com/LeMetadatarr/pymusicbrainz) -- typed client for MusicBrainz, another metadatarr music provider.
+- [pydiscogs](https://github.com/LeMetadatarr/pydiscogs) -- typed client for Discogs.
+- [pyrateyourmusic](https://github.com/LeMetadatarr/pyrateyourmusic) -- typed client for Rate Your Music.
+
 ## License
 
 Apache-2.0. See [LICENSE](LICENSE).

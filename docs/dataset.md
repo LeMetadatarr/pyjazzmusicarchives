@@ -80,7 +80,7 @@ ds.push_to_hub("your-org/jazz-music-archives")
 
 > Be polite when you scrape the full index for the rich or album tables. Throttle your requests. See [advanced.md](advanced.md).
 
-See `examples/09_build_dataset.py` for a runnable version.
+See `examples/08_build_dataset.py` for a runnable version.
 
 ---
 [← Canonical ids](canonical_ids.md) · [Home](../README.md)
