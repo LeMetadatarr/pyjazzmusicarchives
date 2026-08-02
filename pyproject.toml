@@ -25,8 +25,8 @@ stealth = ["curl-cffi"]
 test = ["pytest"]
 
 [project.urls]
-Homepage = "https://github.com/TigreGotico/pyjazzmusicarchives"
-Repository = "https://github.com/TigreGotico/pyjazzmusicarchives"
+Homepage = "https://github.com/LeMetadatarr/pyjazzmusicarchives"
+Repository = "https://github.com/LeMetadatarr/pyjazzmusicarchives"
 
 [tool.setuptools.packages.find]
 where = ["."]
