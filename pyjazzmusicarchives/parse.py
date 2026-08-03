@@ -5,12 +5,15 @@ No network access — unit-testable against saved fixtures.
 Verified against live markup:
 
 - **Listing** (``ListArtistsAlpha.aspx``): ``<li>`` rows each with an
-  ``<a href="/artist/SLUG">`` and a ``<span>`` of ``"Genre • Country"``.
+  ``<a href="/artist/SLUG">`` and a ``<span>`` of ``"Genre • Country"`` (the
+  ``• Country`` suffix is sometimes absent, leaving a bare genre).
 - **Artist page** (``/artist/SLUG``): name from the ``<title>``, the styles
-  line in a bare ``<div>`` inside ``div.col1``, the biography in
-  ``div[id$=BioUpdatePanel]``, and a ``div.discographyContainer`` per album
-  (numeric id in the ``avgRatings_<id>`` span, a title anchor, a per-album
-  subgenre span, a trailing year, and an ``img.album-cover``).
+  line in a bare ``<div>`` inside ``div.col1`` — a ``"/"``-joined genre list
+  with the country appended to the last entry as ``"... • Country"``, no
+  separate element — the biography in ``div[id$=BioUpdatePanel]``, and a
+  ``div.discographyContainer`` per album (numeric id in the
+  ``avgRatings_<id>`` span, a title anchor, a per-album subgenre span, a
+  trailing year, and an ``img.album-cover``).
 """
 from __future__ import annotations
 
@@ -56,8 +59,13 @@ def parse_listing(html: str) -> List[Artist]:
             continue
         span = li.find("span")
         genre = country = None
-        if span and "•" in span.get_text():
-            genre, country = (p.strip() for p in span.get_text().split("•", 1))
+        if span:
+            text = span.get_text(strip=True)
+            if "•" in text:
+                genre, country = (p.strip() for p in text.split("•", 1))
+            elif text:
+                # some rows carry only a genre span, with no country suffix
+                genre = text
         slug = href.rsplit("/", 1)[-1]
         if slug in seen:
             continue
@@ -118,6 +126,7 @@ def parse_artist(html: str, slug: str) -> ArtistDetail:
         name = re.split(r"\s+discography", soup.title.get_text(strip=True))[0].strip()
 
     genres: List[str] = []
+    country = None
     col1 = soup.find("div", class_="col1")
     if col1:
         for div in col1.find_all("div"):
@@ -125,6 +134,13 @@ def parse_artist(html: str, slug: str) -> ArtistDetail:
                 continue  # want the leaf div holding only the styles text
             txt = div.get_text(" ", strip=True)
             if "/" in txt and name.lower() not in txt.lower():
+                # the site appends "• Country" to the last style with no
+                # separator of its own — split it off before the "/" split,
+                # else it lands merged into the final genre (e.g. "Big Band
+                # • United States" instead of "Big Band" + country).
+                if "•" in txt:
+                    txt, country_part = txt.rsplit("•", 1)
+                    country = country_part.strip() or None
                 genres = [g.strip() for g in txt.split("/") if g.strip()]
                 break
 
@@ -139,4 +155,4 @@ def parse_artist(html: str, slug: str) -> ArtistDetail:
         if album:
             albums.append(album)
 
-    return ArtistDetail(slug=slug, name=name, genres=genres, bio=bio, albums=albums)
+    return ArtistDetail(slug=slug, name=name, genres=genres, country=country, bio=bio, albums=albums)

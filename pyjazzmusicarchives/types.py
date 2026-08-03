@@ -109,9 +109,7 @@ class ArtistDetail:
 
     Obtain via :func:`pyjazzmusicarchives.fetch_artist`.
 
-    ``country`` is usually only present on the listing, not the artist page,
-    so it may be ``None`` here; ``genres`` is the list of styles the artist
-    worked across.
+    ``genres`` is the list of styles the artist worked across.
 
     Example::
 

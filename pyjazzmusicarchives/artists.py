@@ -130,7 +130,9 @@ class JazzMusicArchives:
 
     Args:
         transport:            ``"requests"`` / ``"curl_cffi"`` / ``"wayback"`` /
-                              ``"flaresolverr"``, or a ready :class:`Transport`.
+                              ``"flaresolverr"``, or a ready transport object
+                              (a :class:`Transport`, or any object exposing
+                              ``get_html`` -- e.g. a test double).
         flaresolverr_url:     FlareSolverr base URL (e.g.
                               ``"http://192.168.1.116:8191"``); setting it
                               selects the ``flaresolverr`` transport.
@@ -156,7 +158,9 @@ class JazzMusicArchives:
                  flaresolverr_timeout_ms: Optional[int] = None,
                  wayback: bool = False,
                  wayback_fallback: Optional[bool] = None) -> None:
-        if isinstance(transport, Transport):
+        if transport is not None and hasattr(transport, "get_html"):
+            # a ready transport (the real Transport, or any duck-typed
+            # object exposing get_html, e.g. a test double) -- used as-is
             self.transport = transport
         else:
             mode = "wayback" if wayback else transport

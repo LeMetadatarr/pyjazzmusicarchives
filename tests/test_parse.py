@@ -65,3 +65,43 @@ def test_unrated_album_has_no_rating():
 
 def test_empty_listing():
     assert parse_listing("<html><body>nothing</body></html>") == []
+
+
+# --- Regression fixtures recorded from the live site via the Wayback Machine
+# (https://www.jazzmusicarchives.com/artist/miles-davis and
+# .../ListArtistsAlpha.aspx?letter=A, captured 2026-08-03) -------------------
+
+def test_parse_artist_splits_trailing_country_from_last_genre():
+    """The styles line has no separate element for country: it is appended
+    to the last style as ``"... • Country"`` in the same text node (e.g.
+    ``"... / Big Band • United States"``). Regression for a bug where the
+    unsplit country leaked into ``genres`` as ``"Big Band • United States"``
+    and ``ArtistDetail.country`` stayed ``None``."""
+    d = parse_artist(_read("artist_live.html"), "miles-davis")
+    assert d.country == "United States"
+    assert "Big Band" in d.genres
+    assert not any("•" in g for g in d.genres)
+
+
+def test_parse_artist_live_albums_have_titles_and_covers():
+    d = parse_artist(_read("artist_live.html"), "miles-davis")
+    assert len(d.albums) > 300
+    assert all(a.title for a in d.albums)
+    assert all(a.cover for a in d.albums)
+
+
+def test_parse_listing_keeps_genre_without_country():
+    """Some rows carry a genre span with no ``"• Country"`` suffix at all.
+    Regression for a bug where the whole span (including a bare genre) was
+    dropped to ``None`` unless a ``"•"`` was present."""
+    artists = parse_listing(_read("listing_live.html"))
+    no_country = next(a for a in artists if a.slug == "the-missing-cats")
+    assert no_country.genre == "Post-Fusion Contemporary"
+    assert no_country.country is None
+
+
+def test_parse_listing_live_full_page():
+    artists = parse_listing(_read("listing_live.html"))
+    assert len(artists) > 600
+    with_country = [a for a in artists if a.country]
+    assert len(with_country) > 500
