@@ -41,7 +41,7 @@ Properties: `site_id` (= slug), `display_name` (`"MILES DAVIS"`), `url` (`/artis
 | `slug` | `str` | canonical id |
 | `name` | `str` | natural form, e.g. `"MILES DAVIS"` |
 | `genres` | `List[str]` | the styles the artist worked across |
-| `country` | `str \| None` | often `None` here -- the listing carries it |
+| `country` | `str \| None` | |
 | `bio` | `str \| None` | plain-text biography |
 | `albums` | `List[Album]` | rated discography |
 

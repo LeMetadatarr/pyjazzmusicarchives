@@ -2,7 +2,7 @@
 
 ## Cloudflare and transport
 
-jazzmusicarchives.com sits behind Cloudflare. The shared session (created lazily in `pyjazzmusicarchives._transport.default_session`) defaults to **`curl_cffi` Chrome TLS impersonation** when the `stealth` extra is installed:
+jazzmusicarchives.com sits behind Cloudflare. The shared session (created lazily per `Transport` instance) defaults to **`curl_cffi` Chrome TLS impersonation** when the `stealth` extra is installed:
 
 ```bash
 pip install pyjazzmusicarchives[stealth]
@@ -125,7 +125,7 @@ for a in jma.iter_artists():
 - The album id and the precise rating come from the per-album rating star-box script (`readOnlyRating_<id>`), present on **every** release. This differs from the `avgRatings_<id>` span, which appears only once an album has been rated.
 - An unrated release (`"0.00 | 0 ratings"`, or an empty star value) surfaces as `avg_rating = None`, `num_ratings = 0`. The album id is still captured.
 - The per-album sub-genre is the id-less styled span in each discography cell. The year is the trailing four-digit token.
-- `country` is reliably available on the **listing**, not the artist page, so `ArtistDetail.country` is usually `None`. `ArtistDetail.genres` lists the styles the artist worked across.
+- `country` is available on both the listing and the artist page. On the artist page it is appended to the last style in the styles line as `"... • Country"`, with no separate element, so it is split off before the styles are parsed. `ArtistDetail.genres` lists the styles the artist worked across.
 - `display_name` flips the leading surname comma (`"DAVIS, MILES"` becomes `"MILES DAVIS"`).
 
 ---

@@ -42,3 +42,21 @@ def test_write_jsonl(tmp_path):
     n = dataset.write_jsonl(str(path), rows)
     assert n == 4
     assert path.read_text().count("\n") == 4
+
+
+def test_build_dataset_list_level(monkeypatch):
+    monkeypatch.setattr(dataset, "iter_artists",
+                         lambda letters=None, transport=None: iter(parse_listing(_read("listing.html"))))
+    rows = list(dataset.build_dataset("A"))
+    assert len(rows) == 4
+    assert set(rows[0]) == {"artist_slug", "name", "display_name", "genre", "country", "url"}
+
+
+def test_build_dataset_with_detail(monkeypatch):
+    monkeypatch.setattr(dataset, "iter_artists",
+                         lambda letters=None, transport=None: iter(parse_listing(_read("listing.html"))))
+    monkeypatch.setattr(dataset, "fetch_artist",
+                         lambda slug, transport=None: parse_artist(_read("artist.html"), slug))
+    rows = list(dataset.build_dataset("A", with_detail=True))
+    assert len(rows) == 4
+    assert all(r["n_albums"] == 3 for r in rows)
